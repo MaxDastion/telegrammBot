@@ -3,6 +3,8 @@ using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+using Telegram.Bot.Types.ReplyMarkups;
+using telegrammBot;
 
 class MyMain
 {
@@ -27,6 +29,14 @@ class MyMain
         if (message.Text is not { } messageText)
             return;
 
+        ReplyKeyboardMarkup replyKeyboardMarkup = new(new[]
+{
+    new KeyboardButton[] { "Help me", "Game 🕹️" },
+})
+        {
+            ResizeKeyboard = true
+        };
+
         if (message.Text == "h")
         {
 
@@ -40,7 +50,8 @@ class MyMain
             Message sentMessage = await botClient.SendTextMessageAsync(
                 chatId: chatId,
                 text: "Hello world",
-                cancellationToken: cancellationToken) ;
+                cancellationToken: cancellationToken,
+                replyMarkup: replyKeyboardMarkup) ;
         }
         if (message.Text == "picture")
         {
@@ -51,10 +62,8 @@ class MyMain
         parseMode: ParseMode.Html,
         cancellationToken: cancellationToken);
         }
-        if (message.Text == "виселица" )
-        {
-            
-        }
+        if (message.Text == "Game 🕹️") { Viselica viselica = new Viselica(message, botClient, cancellationToken); }
+       
     }
 
     static async Task Main(string[] args)
