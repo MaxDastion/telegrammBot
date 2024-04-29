@@ -12,19 +12,19 @@ using Telegram.Bot.Types.ReplyMarkups;
 
 namespace telegrammBot
 {
-    static class MyClass
-    {
-       public static List<string> WordList {get; set;}
-    }
+    
     internal class Viselica
     {
         private string Word;
         private string FindWord;
+        private List<string> WordList = new List<string>() { "апельсин", "банан", "велосипед", "гитара", "домик", "ежик", "зонт", "игрушка", "котенок", 
+            "луна", "мороженое", "носок", "огонь", "пицца", "робот", "солнце", "телефон", 
+            "учебник", "фонарь", "холодильник", "цветок", "шарик", "щенок", "электрокар" };
 
-        private async void Play(Message message, ITelegramBotClient botClient, CancellationToken cancellationToken) {
+        private async Task Play(Message message, ITelegramBotClient botClient, CancellationToken cancellationToken) {
             while (true)
             {
-                if (message.Text.Length != 1)
+               if (message.Text.Length != 1)
                 {
                     await botClient.SendTextMessageAsync(
                     chatId: message.Chat.Id,
@@ -37,6 +37,7 @@ namespace telegrammBot
                         chatId: message.Chat.Id,
                     text: "У вас получилось 👏🏽👏🏽",
                     cancellationToken: cancellationToken);
+                    break;
                 }
             }
         }
@@ -45,13 +46,12 @@ namespace telegrammBot
         public Viselica(Message message, ITelegramBotClient botClient, CancellationToken cancellationToken) { 
             Random random = new Random();
             string temp = System.IO.File.ReadAllText("WordList.json");
-            MyClass.WordList = Newtonsoft.Json.JsonConvert.DeserializeObject<List<string>>(temp);
-            Word = MyClass.WordList.ElementAt(random.Next()% MyClass.WordList.Count);
+            Word = WordList.ElementAt(random.Next()% WordList.Count);
             foreach (var item in Word)
             {
                 FindWord += '_';
             }
-            Play( message, botClient,  cancellationToken);
+            await Play( message, botClient,  cancellationToken);
         }   
 
     }
