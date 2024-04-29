@@ -9,6 +9,10 @@ using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
+using Telegram.Bot.Exceptions;
+using Telegram.Bot.Polling;
+using Telegram.Bot.Types.Enums;
+using telegrammBot;
 
 namespace telegrammBot
 {
@@ -21,29 +25,31 @@ namespace telegrammBot
             "луна", "мороженое", "носок", "огонь", "пицца", "робот", "солнце", "телефон", 
             "учебник", "фонарь", "холодильник", "цветок", "шарик", "щенок", "электрокар" };
 
-        private async Task Play(Message message, ITelegramBotClient botClient, CancellationToken cancellationToken) {
+        private async void Play(Update update, ITelegramBotClient botClient, CancellationToken cancellationToken)
+        {
             while (true)
             {
-               if (message.Text.Length != 1)
+                if (update.Message.Text.Length != 3)
                 {
                     await botClient.SendTextMessageAsync(
-                    chatId: message.Chat.Id,
+                    chatId: update.Message.Chat.Id,
                 text: "Извините, попробуйте снова",
                 cancellationToken: cancellationToken);
 
                 }
-                else {
+                else
+                {
                     await botClient.SendTextMessageAsync(
-                        chatId: message.Chat.Id,
+                        chatId: update.Message.Chat.Id,
                     text: "У вас получилось 👏🏽👏🏽",
                     cancellationToken: cancellationToken);
-                    break;
+                    
                 }
             }
         }
 
 
-        public Viselica(Message message, ITelegramBotClient botClient, CancellationToken cancellationToken) { 
+        public Viselica(Update update, ITelegramBotClient botClient, CancellationToken cancellationToken) { 
             Random random = new Random();
             string temp = System.IO.File.ReadAllText("WordList.json");
             Word = WordList.ElementAt(random.Next()% WordList.Count);
@@ -51,7 +57,7 @@ namespace telegrammBot
             {
                 FindWord += '_';
             }
-            await Play( message, botClient,  cancellationToken);
+            Play(update, botClient,  cancellationToken);
         }   
 
     }

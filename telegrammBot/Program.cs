@@ -31,7 +31,7 @@ class MyMain
 
         ReplyKeyboardMarkup replyKeyboardMarkup = new(new[]
 {
-    new KeyboardButton[] { "Help me", "Game 🕹️" },
+    new KeyboardButton[] { "Help me", "🕹️" },
 })
         {
             ResizeKeyboard = true
@@ -62,7 +62,7 @@ class MyMain
         parseMode: ParseMode.Html,
         cancellationToken: cancellationToken);
         }
-        if (message.Text == "Game 🕹️") { Viselica viselica = new Viselica(message, botClient, cancellationToken); }
+        if (message.Text == "🕹️") { Viselica viselica = new Viselica( update, botClient, cancellationToken); }
        
     }
 
