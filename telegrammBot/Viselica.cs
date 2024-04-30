@@ -16,48 +16,67 @@ using telegrammBot;
 
 namespace telegrammBot
 {
-    
-    internal class Viselica
+
+    internal  class Viselica
     {
         private string Word;
-        private string FindWord;
+        private string FindWord {
+            get => FindWord;
+            
+            set {
+                foreach (var item in value)
+                {
+                    FindWord += '_';
+                }
+            } }
         private List<string> WordList = new List<string>() { "апельсин", "банан", "велосипед", "гитара", "домик", "ежик", "зонт", "игрушка", "котенок", 
             "луна", "мороженое", "носок", "огонь", "пицца", "робот", "солнце", "телефон", 
             "учебник", "фонарь", "холодильник", "цветок", "шарик", "щенок", "электрокар" };
-
-        private async void Play(Update update, ITelegramBotClient botClient, CancellationToken cancellationToken)
+        public async         Task
+Play(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
         {
-            while (true)
+            if (update.Message.Text == "🕹️")
             {
-                if (update.Message.Text.Length != 3)
+                await botClient.SendTextMessageAsync(
+                            chatId: update.Message.Chat.Id,
+                        text: $"Искомое слово {FindWord}",
+                        cancellationToken: cancellationToken);
+            }
+            else
+            {
+
+                if (update.Message.Text.Length > 1)
                 {
                     await botClient.SendTextMessageAsync(
                     chatId: update.Message.Chat.Id,
                 text: "Извините, попробуйте снова",
                 cancellationToken: cancellationToken);
 
+
                 }
                 else
                 {
+                    FindWord[Word.Any(x=> x== update.Message.Text[0])] = update.Message.Text;
                     await botClient.SendTextMessageAsync(
                         chatId: update.Message.Chat.Id,
-                    text: "У вас получилось 👏🏽👏🏽",
+                    text: $"Искомое слово {FindWord}",
                     cancellationToken: cancellationToken);
-                    
+
                 }
             }
+            
         }
 
 
-        public Viselica(Update update, ITelegramBotClient botClient, CancellationToken cancellationToken) { 
+        public Viselica() { 
             Random random = new Random();
             string temp = System.IO.File.ReadAllText("WordList.json");
             Word = WordList.ElementAt(random.Next()% WordList.Count);
-            foreach (var item in Word)
-            {
-                FindWord += '_';
-            }
-            Play(update, botClient,  cancellationToken);
+            
+       
+           
+
+
         }   
 
     }

@@ -5,10 +5,17 @@ using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 using telegrammBot;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Telegram.Bot.Args;
+
 
 class MyMain
 {
-   static Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
+    private static Dictionary<long, string> userModes = new Dictionary<long, string>();
+
+    public static Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
     {
         var ErrorMessage = exception switch
         {
@@ -29,41 +36,81 @@ class MyMain
         if (message.Text is not { } messageText)
             return;
 
-        ReplyKeyboardMarkup replyKeyboardMarkup = new(new[]
-{
-    new KeyboardButton[] { "Help me", "🕹️" },
-})
+        var chatId = message.Chat.Id;
+
+            ReplyKeyboardMarkup replyKeyboardMarkupNormal = new(new[]{new KeyboardButton[] { "Normal", "🕹️" },})
+            {
+                ResizeKeyboard = true
+            };
+
+
+
+
+        var viselica = new Viselica();
+        if (message.Text == "🕹️")
         {
-            ResizeKeyboard = true
-        };
-
-        if (message.Text == "h")
-        {
-
-
-
-            var chatId = message.Chat.Id;
-
-            Console.WriteLine($"Received a '{messageText}' message in chat {chatId}.");
-
-            // Echo received message text
-            Message sentMessage = await botClient.SendTextMessageAsync(
-                chatId: chatId,
-                text: "Hello world",
-                cancellationToken: cancellationToken,
-                replyMarkup: replyKeyboardMarkup) ;
+            viselica = new Viselica();
+            await botClient.SendTextMessageAsync(
+            chatId: chatId,
+            text: "Режим игра",
+            cancellationToken: cancellationToken,
+            replyMarkup: replyKeyboardMarkupNormal);
+            userModes[chatId] = "Game";
         }
-        if (message.Text == "picture")
+        if (message.Text == "Normal")
         {
-            await botClient.SendPhotoAsync(
-        chatId:message.Chat.Id,
-        photo: InputFile.FromUri("https://github.com/TelegramBots/book/raw/master/src/docs/photo-ara.jpg"),
-        caption: "<b>Ara bird</b>. <i>Source</i>: <a href=\"https://pixabay.com\">Pixabay</a>",
-        parseMode: ParseMode.Html,
-        cancellationToken: cancellationToken);
+            await botClient.SendTextMessageAsync(
+            chatId: chatId,
+            text: "обычный режим",
+            cancellationToken: cancellationToken,
+            replyMarkup: replyKeyboardMarkupNormal);
+            userModes[chatId] = "normal";
         }
-        if (message.Text == "🕹️") { Viselica viselica = new Viselica( update, botClient, cancellationToken); }
-       
+        if (userModes != null)
+        {
+            #region NormaMode
+
+            if (userModes[chatId] == "normal")
+            {
+
+                if (message.Text == "h")
+                {
+
+
+
+
+
+                    Console.WriteLine($"Received a '{messageText}' message in chat {chatId}.");
+
+                    // Echo received message text
+                    Message sentMessage = await botClient.SendTextMessageAsync(
+                        chatId: chatId,
+                        text: "Hello world",
+                        cancellationToken: cancellationToken,
+                        replyMarkup: replyKeyboardMarkupNormal);
+                }
+                if (message.Text == "picture")
+                {
+                    await botClient.SendPhotoAsync(
+                chatId: message.Chat.Id,
+                photo: InputFile.FromUri("https://github.com/TelegramBots/book/raw/master/src/docs/photo-ara.jpg"),
+                caption: "<b>Ara bird</b>. <i>Source</i>: <a href=\"https://pixabay.com\">Pixabay</a>",
+                parseMode: ParseMode.Html,
+                cancellationToken: cancellationToken);
+                }
+
+            }
+            #endregion
+            #region GameMode
+
+            if (userModes[chatId] == "Game")
+            {
+                await viselica.Play(botClient, update, cancellationToken);
+            }
+            #endregion
+        }
+
+
     }
 
     static async Task Main(string[] args)
